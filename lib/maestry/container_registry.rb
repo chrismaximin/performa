@@ -1,6 +1,11 @@
+# frozen_string_literal: true
+
+require "set"
+
 module Maestry
   module ContainerRegistry
     module_function
+
     extend ShellHelper
 
     def add(container_id)

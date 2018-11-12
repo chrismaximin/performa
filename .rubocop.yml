@@ -28,3 +28,6 @@ Style/StringLiterals:
 
 Style/Documentation:
   Enabled: false
+
+Metrics/MethodLength:
+  Max: 30

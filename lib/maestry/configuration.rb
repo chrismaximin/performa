@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "yaml"
+
 module Maestry
   class Configuration
     DEFAULT_FILES = %w[
@@ -10,6 +12,8 @@ module Maestry
     ERR_READING_CONFIG_FILE = "Could not read config file %s (%s)"
     ERR_INVALID_FILE = "Invalid YAML file %s: %s"
     ERR_NO_FILE = "Could not find a default config file (#{DEFAULT_FILES.join(', ')})"
+
+    InvalidDataError = Class.new(StandardError)
 
     attr_reader :data
 
@@ -36,7 +40,11 @@ module Maestry
     end
 
     def validate_data
-      # noop
+      raise InvalidDataError if @data["version"].nil? ||
+                                !@data["images"]&.is_a?(Array) ||
+                                @data["command"]&.empty?
+    rescue InvalidDataError
+      raise Error, "Invalid config"
     end
 
     def [](name)

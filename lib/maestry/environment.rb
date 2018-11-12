@@ -3,7 +3,6 @@
 module Maestry
   class Environment
     attr_reader :image, :facet, :name
-    attr_accessor :container_id
 
     def self.from_image(image)
       new.tap do |env|
@@ -22,7 +21,7 @@ module Maestry
     end
 
     def set_name
-      @name = @image.tr(":", "_") + ("-#{@facet}" if @facet).to_s
+      @name = @image.tr(":", "_") + ("-#{@facet}" unless @facet&.empty?).to_s
     end
   end
 end

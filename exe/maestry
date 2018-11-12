@@ -27,10 +27,10 @@ OptionParser.new do |opts|
 end.parse!
 
 begin
-  coordinator = Maestry::Coordinator.new(config_file: options.config_file)
+  config = Maestry::Configuration.new(options.config_file)
+  coordinator = Maestry::Coordinator.new(config: config)
   coordinator.run
 rescue StandardError => e
-  puts
-  puts e.message
+  Maestry::LOG.error(e.message)
   exit 1
 end

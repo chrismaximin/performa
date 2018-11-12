@@ -1,15 +1,13 @@
 # frozen_string_literal: true
 
-require "yaml"
-require "pty"
-require "set"
-require "English"
 require "maestry/version"
+require "maestry/logger"
 require "maestry/configuration"
 require "maestry/shell_helper"
 require "maestry/container_registry"
 require "maestry/environment"
 require "maestry/coordinator"
+require "maestry/results_helper"
 
 module Maestry
   Error = Class.new(StandardError)

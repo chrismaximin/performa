@@ -4,31 +4,42 @@ module Maestry
   class Coordinator
     include ShellHelper
 
-    def initialize(config_file: nil)
-      @config = Configuration.new(config_file)
+    def initialize(config:)
+      @config = config
     end
 
     def run
       pull_images(missing_images)
+      results = {}
 
       @config["images"].each do |image|
-        env = Environment.from_image(image)
-        # byebug
-
-        env.container_id = run_image(image)
-        byebug
-        if @config["facets"]
-          @config["facets"].each_pair do |facet, commands|
-            env.facet = facet
-            run_facet(commands, container_id: env.container_id)
-            ContainerRegistry.kill(env.container_id)
-          end
-        else
-          # if no facets
-        end
+        process_image(image, results: results)
       end
+
+      ResultsHelper.process(results, config: @config)
     ensure
       ContainerRegistry.kill_all
+    end
+
+    def process_image(image, results:)
+      env = Environment.from_image(image)
+      container_id = start_image_container(image)
+
+      default_facet = { "" => [] }
+      (@config["facets"] || default_facet).each_pair do |facet_name, commands|
+        env.facet = facet_name
+        results[env.name] = process_facet(commands, container_id: container_id)
+      end
+
+      ContainerRegistry.kill(container_id)
+    end
+
+    def process_facet(commands, container_id:)
+      (commands || []).each do |command|
+        execute_command_on_container(command, container_id: container_id)
+      end
+
+      execute_command_on_container(@config["command"], container_id: container_id)
     end
 
     def pull_images(images)
@@ -43,10 +54,11 @@ module Maestry
       end
     end
 
-    def run_image(image)
+    def start_image_container(image)
       volumes_options = @config["volumes"]&.map do |volume|
+        volume[0] = Dir.pwd if volume[0] == "."
         " -v #{volume}"
-      end.join
+      end&.join
 
       command = "docker run #{volumes_options} -d #{image} tail -f /dev/null"
 
@@ -55,12 +67,8 @@ module Maestry
       end
     end
 
-    def run_facet(facet_setup_commands, container_id:)
-      facet_setup_commands.each do |command|
-        run_command("docker container exec #{container_id} #{command}")
-      end
-
-      run_command("docker container exec #{container_id} #{@config["command"]}")
+    def execute_command_on_container(command, container_id:)
+      run_command("docker container exec #{container_id} #{command}")
     end
   end
 end
