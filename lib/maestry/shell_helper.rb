@@ -5,9 +5,15 @@ require "English"
 
 module Maestry
   module ShellHelper
-    def run_command(command, success_only: true)
+    def run_command(command, success_only: true, no_capture: false)
       LOG.success("Running `#{command}` ...")
-      result = pty_spawn(command)
+
+      if no_capture
+        system(command)
+        result = ""
+      else
+        result = pty_spawn(command)
+      end
 
       raise "(non-zero exit code)" if success_only && !$CHILD_STATUS.success?
 
@@ -29,15 +35,9 @@ module Maestry
         end
       end
 
-      wait_for_child_process
+      Process.wait unless $CHILD_STATUS.exited?
 
       result
-    end
-
-    def wait_for_child_process
-      Process.wait
-    rescue Errno::ECHILD
-      LOG.debug("There is no process to wait for") # TODO: do better?
     end
   end
 end

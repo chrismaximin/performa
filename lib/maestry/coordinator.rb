@@ -44,7 +44,7 @@ module Maestry
 
     def pull_images(images)
       images.each do |image|
-        run_command("docker pull #{image}")
+        run_command("docker pull #{image}", no_capture: true)
       end
     end
 
