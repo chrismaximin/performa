@@ -4,11 +4,7 @@
 lib = File.expand_path("../lib", __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
-if ENV["DEBUG"]
-  require "byebug"
-  byebug
-end
-
+require "byebug" if ENV["DEBUG"]
 require "maestry"
 require "optionparser"
 
@@ -17,7 +13,7 @@ options = Struct.new(:config_file).new
 OptionParser.new do |opts|
   opts.banner = [
     "Usage: maestry [-c config-file.yml]",
-    "Default config files considered: #{Maestry::Config::DEFAULT_FILES.join(', ')}"
+    "Default config files considered: #{Maestry::Configuration::DEFAULT_FILES.join(', ')}"
   ].join("\n")
 
   opts.on("-c", "--config-file [file]", "Maestry config file to use") do |file|
@@ -30,4 +26,11 @@ OptionParser.new do |opts|
   end
 end.parse!
 
-Maestry::Coordinator.new(config_file: options.config_file).run
+begin
+  coordinator = Maestry::Coordinator.new(config_file: options.config_file)
+  coordinator.run
+rescue StandardError => e
+  puts
+  puts e.message
+  exit 1
+end
