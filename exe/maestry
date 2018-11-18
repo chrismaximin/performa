@@ -28,9 +28,9 @@ end.parse!
 
 begin
   config = Maestry::Configuration.new(options.config_file)
-  coordinator = Maestry::Coordinator.new(config: config)
-  coordinator.run
+  Maestry::Coordinator.run(config)
 rescue StandardError => e
   Maestry::LOG.error(e.message)
+  Maestry::LOG.error(e.backtrace.join("\n")) if ENV["DEBUG"]
   exit 1
 end
