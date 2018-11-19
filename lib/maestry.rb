@@ -8,7 +8,7 @@ require "maestry/container_registry"
 require "maestry/environment"
 require "maestry/container_id"
 require "maestry/images"
-require "maestry/facets"
+require "maestry/stages"
 require "maestry/coordinator"
 require "maestry/results_helper"
 

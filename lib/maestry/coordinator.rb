@@ -22,7 +22,7 @@ module Maestry
     def process_env(env, config:)
       container_id = Images.process(env, config: config)
       unless container_id.from_cache
-        Facets.process(env, container_id: container_id)
+        Stages.process(env, container_id: container_id)
         Images.cache_container(container_id, tag: env.hash) unless config["cache_environments"] == false
       end
 
