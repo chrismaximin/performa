@@ -3,7 +3,7 @@
 require "fileutils"
 require "colorize"
 
-module Maestry
+module Performa
   module ResultsHelper
     module_function
 

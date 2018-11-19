@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Maestry
+module Performa
   class ContainerId < String
     attr_accessor :from_cache
 

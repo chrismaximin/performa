@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-RSpec.describe Maestry do
+RSpec.describe Performa do
   it "has a version number" do
-    expect(Maestry::VERSION).not_to be nil
+    expect(Performa::VERSION).not_to be nil
   end
 end

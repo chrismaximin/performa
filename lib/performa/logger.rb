@@ -4,7 +4,7 @@ require "logger"
 require "time"
 require "colorize"
 
-module Maestry
+module Performa
   LOG = Logger.new(STDOUT)
   LOG.level = Logger::INFO
   LOG.formatter = proc do |severity, datetime, _progname, message|

@@ -3,7 +3,7 @@
 require "pty"
 require "English"
 
-module Maestry
+module Performa
   module ShellHelper
     def run_command(command, success_only: true, no_capture: false)
       LOG.success("Running `#{command}` ...")

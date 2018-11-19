@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-module Maestry
+module Performa
   module Images
     module_function
 
     extend ShellHelper
-    CACHED_IMAGES_NAME = "maestry_env"
+    CACHED_IMAGES_NAME = "performa_env"
 
     def process(env, config:)
       unless config["cache_environments"] == false

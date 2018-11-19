@@ -2,7 +2,7 @@
 
 require "digest"
 
-module Maestry
+module Performa
   class Environment
     def self.all(config)
       unless config["stages"]

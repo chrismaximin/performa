@@ -2,7 +2,7 @@
 
 require "set"
 
-module Maestry
+module Performa
   module ContainerRegistry
     module_function
 
@@ -24,7 +24,7 @@ module Maestry
     end
 
     def containers
-      Thread.current[:maestry_containers] ||= Set.new
+      Thread.current[:performa_containers] ||= Set.new
     end
   end
 end

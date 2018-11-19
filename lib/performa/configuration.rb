@@ -2,11 +2,11 @@
 
 require "yaml"
 
-module Maestry
+module Performa
   class Configuration
     DEFAULT_FILES = %w[
-      maestry.yml config/maestry.yml
-      spec/maestry.yml test/maestry.yml
+      performa.yml config/performa.yml
+      spec/performa.yml test/performa.yml
     ].freeze
 
     ERR_READING_CONFIG_FILE = "Could not read config file %s (%s)"

@@ -14,7 +14,7 @@ GIT
 PATH
   remote: .
   specs:
-    maestry (0.1.0)
+    performa (0.1.0)
       colorize (~> 0.8)
 
 GEM
@@ -53,7 +53,7 @@ PLATFORMS
 DEPENDENCIES
   bundler
   byebug
-  maestry!
+  performa!
   rake
   rspec
   rubocop!

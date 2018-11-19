@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Maestry
+module Performa
   module Coordinator
     module_function
 
