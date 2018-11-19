@@ -3,12 +3,15 @@
 module Maestry
   module Images
     module_function
+
     extend ShellHelper
     CACHED_IMAGES_NAME = "maestry_env"
 
-    def process(env)
-      container_id = container_id_for_cached_image(env)
-      return container_id if container_id
+    def process(env, config:)
+      unless config["cache_environments"] == false
+        container_id = container_id_for_cached_image(env)
+        return container_id if container_id
+      end
 
       pull_if_missing(env.image)
       id = start_image_container(env.image, volumes: env.volumes)
@@ -50,6 +53,13 @@ module Maestry
 
     def cache_container(container_id, tag:)
       run_command("docker commit #{container_id} #{CACHED_IMAGES_NAME}:#{tag}")
+    end
+
+    def clear_cached
+      ids = run_command("docker images --filter=reference='#{CACHED_IMAGES_NAME}' --format '{{.ID}}'").split("\n")
+      ids.each do |id|
+        run_command("docker rmi -f #{id.strip}")
+      end
     end
   end
 end

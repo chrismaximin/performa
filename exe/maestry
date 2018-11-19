@@ -13,16 +13,21 @@ options = Struct.new(:config_file).new
 OptionParser.new do |opts|
   opts.banner = [
     "Usage: maestry [-c config-file.yml]",
-    "Default config files considered: #{Maestry::Configuration::DEFAULT_FILES.join(', ')}"
+    "Default config files considered: #{Maestry::Configuration::DEFAULT_FILES.join(', ')}\n\n"
   ].join("\n")
 
   opts.on("-c", "--config-file [file]", "Maestry config file to use") do |file|
     options.config_file = file
   end
 
+  opts.on("--clear-cached", "Remove all Maestry generated docker images (#{Maestry::Images::CACHED_IMAGES_NAME}:*)") do
+    Maestry::Images.clear_cached
+    exit 0
+  end
+
   opts.on("-h", "--help", "Prints this help") do
     puts opts
-    exit
+    exit 0
   end
 end.parse!
 

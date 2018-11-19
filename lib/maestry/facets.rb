@@ -3,6 +3,7 @@
 module Maestry
   module Facets
     module_function
+
     extend ShellHelper
 
     def process(env, container_id:)
