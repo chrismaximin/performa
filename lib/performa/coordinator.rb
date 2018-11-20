@@ -23,7 +23,7 @@ module Performa
       container_id = Images.process(env, config: config)
       unless container_id.from_cache
         Stages.process(env, container_id: container_id)
-        Images.cache_container(container_id, tag: env.hash) unless config["cache_environments"] == false
+        Images.cache_container(container_id, tag: env.hash) if config.cachable_envs?
       end
 
       result = run_command("docker container exec #{container_id} #{config['command']}")

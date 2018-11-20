@@ -50,5 +50,9 @@ module Performa
     def [](name)
       @data[name]
     end
+
+    def cachable_envs?
+      !(@data["cache_environments"] == false || @data["stages"].nil?)
+    end
   end
 end

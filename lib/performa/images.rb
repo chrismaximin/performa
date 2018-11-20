@@ -8,7 +8,7 @@ module Performa
     CACHED_IMAGES_NAME = "performa_env"
 
     def process(env, config:)
-      unless config["cache_environments"] == false
+      if config.cachable_envs?
         container_id = container_id_for_cached_image(env)
         return container_id if container_id
       end
