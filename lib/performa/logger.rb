@@ -18,7 +18,21 @@ module Performa
     end
   end
 
-  def LOG.success(message)
-    LOG.info(message.colorize(:green))
+  class << LOG
+    def info_success(message)
+      LOG.info(message.colorize(:green))
+    end
+
+    def info_error(message)
+      LOG.info(message.colorize(:red))
+    end
+
+    def info_warning(message)
+      LOG.info(message.colorize(:yellow))
+    end
+
+    def info_notice(message)
+      LOG.info(message.colorize(:light_blue))
+    end
   end
 end

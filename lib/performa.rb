@@ -3,6 +3,7 @@
 require "performa/version"
 require "performa/logger"
 require "performa/configuration"
+require "performa/command_result"
 require "performa/shell_helper"
 require "performa/container_registry"
 require "performa/environment"

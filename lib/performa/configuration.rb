@@ -40,8 +40,7 @@ module Performa
     end
 
     def validate_data
-      raise InvalidDataError if @data["version"].nil? ||
-                                !@data["images"]&.is_a?(Array) ||
+      raise InvalidDataError if !@data["images"]&.is_a?(Array) ||
                                 @data["command"]&.empty?
     rescue InvalidDataError
       raise Error, "Invalid config"

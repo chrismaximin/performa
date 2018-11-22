@@ -10,7 +10,7 @@ module Performa
       return unless env.stage
 
       env.stage[1].each do |command|
-        run_command("docker container exec #{container_id} #{command}")
+        run_command("docker container exec #{container_id} #{command}", success_only: false)
       end
     end
   end

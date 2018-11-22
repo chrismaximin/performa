@@ -19,7 +19,7 @@ module Performa
     end
 
     def kill(container_id)
-      run_command("docker kill #{container_id}")
+      run_command("docker kill #{container_id}", success_only: false)
       containers.delete(container_id)
     end
 

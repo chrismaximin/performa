@@ -19,7 +19,7 @@ RSpec.describe "Performa executable" do
       }
       config_file_path = setup_config_file(config)
 
-      envs_hashes = config["images"].product(config["stages"].to_a).map { |product| Digest::SHA1.hexdigest(product[0] + product[1].to_s)  }
+      envs_hashes = config["images"].product(config["stages"].to_a).map { |product| Digest::SHA1.hexdigest(product[0] + product[1].to_s) }
 
       docker_inouts = {
         "images -q ruby:0.0" => "",
@@ -56,7 +56,7 @@ RSpec.describe "Performa executable" do
 
         "container exec container-ruby11-v2 get install ar -v=1" => "",
         "container exec container-ruby11-v2 /the_command" => "result for container-ruby11-v2",
-        "kill container-ruby11-v2" => "",
+        "kill container-ruby11-v2" => ""
       }
 
       exec_mock = ExecutableMock.generate("docker", inouts: docker_inouts)
@@ -79,7 +79,6 @@ RSpec.describe "Performa executable" do
 
       expect(result).to include("Output for ruby_1.1-ar1")
       expect(result).to include("result for container-ruby11-v2")
-
     end
   end
 
@@ -91,7 +90,7 @@ RSpec.describe "Performa executable" do
         "pull ruby:0.0" => "",
         "run -d ruby:0.0 tail -f /dev/null" => "container-ruby00",
         "container exec container-ruby00 /the_command" => "result for container-ruby00",
-        "kill container-ruby00" => "",
+        "kill container-ruby00" => ""
       }
 
       exec_mock = ExecutableMock.generate("docker", inouts: docker_inouts)

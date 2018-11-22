@@ -1,43 +1,45 @@
 # frozen_string_literal: true
 
-require "pty"
 require "English"
+require "open3"
 
 module Performa
   module ShellHelper
     def run_command(command, success_only: true, no_capture: false)
-      LOG.success("Running `#{command}` ...")
+      LOG.info("Running `#{command.colorize(:light_yellow)}` ...")
 
-      if no_capture
-        system(command)
-        result = ""
-      else
-        result = pty_spawn(command)
+      exit_status, result_str = no_capture ? run_no_capture_command(command) : run_capture_command(command)
+      raise "(non-zero exit code: #{exit_status.exitstatus})" if success_only && !exit_status.success?
+
+      CommandResult.new(result_str).tap do |result|
+        result.success = exit_status.success?
       end
-
-      raise "(non-zero exit code)" if success_only && !$CHILD_STATUS.success?
-
-      result
     rescue StandardError => e
       raise Error, <<~MSG
         Error running the command `#{command}`:
         => error: #{e.message}
-        => command output: #{result}
+        => command output: #{result_str}
       MSG
     end
 
-    def pty_spawn(command)
-      result = +""
-      PTY.spawn(command) do |stdout, _stdin, _pid|
-        stdout.each do |line|
-          LOG.info(line.strip)
-          result << line
+    def run_no_capture_command(command)
+      system(command)
+      [$CHILD_STATUS, ""]
+    end
+
+    def run_capture_command(command)
+      exit_status = nil
+      result_str = +""
+      
+      Open3.popen2e(command) do |_stdin, stdout_and_stderr, wait_thr|
+        stdout_and_stderr.each do |line|
+          result_str << line
         end
+        exit_status = wait_thr.value
       end
+      exit_status.success? ? LOG.info_success(result_str) : LOG.info_error(result_str)
 
-      Process.wait unless $CHILD_STATUS.exited?
-
-      result
+      [exit_status, result_str]
     end
   end
 end
