@@ -30,7 +30,7 @@ module Performa
     def run_capture_command(command)
       exit_status = nil
       result_str = +""
-      
+
       Open3.popen2e(command) do |_stdin, stdout_and_stderr, wait_thr|
         stdout_and_stderr.each do |line|
           result_str << line

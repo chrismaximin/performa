@@ -8,20 +8,23 @@ require "digest"
 RSpec.describe "Performa executable" do
   EXECUTABLE = File.join(Gem::Specification.find_by_name("performa").gem_dir, "exe", "performa")
 
-  context "with stages" do
+  context "with stages (nothing cached + one ignored_environments)" do
     it "runs command on the product of images * stages" do
       config = {
         "images" => ["ruby:0.0", "ruby:1.1"],
         "stages" => {
           "ar0" => ["get install ar -v=0"],
           "ar1" => ["get install ar -v=1"]
-        }
+        },
+        "ignored_environments" => [
+          ["ruby:1.1", "get install ar -v=0"]
+        ]
       }
       config_file_path = setup_config_file(config)
 
       envs_hashes = config["images"].product(config["stages"].to_a).map { |product| Digest::SHA1.hexdigest(product[0] + product[1].to_s) }
 
-      docker_inouts = {
+      docker_mappings = {
         "images -q ruby:0.0" => "",
         "pull ruby:0.0" => "",
         "run -d ruby:0.0 tail -f /dev/null" => ["container-ruby00", "container-ruby00-v2"],
@@ -59,14 +62,12 @@ RSpec.describe "Performa executable" do
         "kill container-ruby11-v2" => ""
       }
 
-      exec_mock = ExecutableMock.generate("docker", inouts: docker_inouts)
-
-      result = run_executable(
-        config_file_path: config_file_path,
-        command_prefix: exec_mock[:path_setup]
-      )
-
-      puts result.uncolorize
+      result = ExecutableMock.generate("docker", mappings: docker_mappings) do |mock|
+        run_executable(
+          config_file_path: config_file_path,
+          command_prefix: mock.path_setup
+        )
+      end
 
       expect(result).to include("Output for ruby_0.0-ar0")
       expect(result).to include("result for container-ruby00")
@@ -85,7 +86,7 @@ RSpec.describe "Performa executable" do
   context "with no stages" do
     it "runs command on all the images" do
       config_file_path = setup_config_file("images" => ["ruby:0.0"])
-      docker_inouts = {
+      docker_mappings = {
         "images -q ruby:0.0" => "",
         "pull ruby:0.0" => "",
         "run -d ruby:0.0 tail -f /dev/null" => "container-ruby00",
@@ -93,14 +94,12 @@ RSpec.describe "Performa executable" do
         "kill container-ruby00" => ""
       }
 
-      exec_mock = ExecutableMock.generate("docker", inouts: docker_inouts)
-
-      result = run_executable(
-        config_file_path: config_file_path,
-        command_prefix: exec_mock[:path_setup]
-      )
-
-      puts result.uncolorize
+      result = ExecutableMock.generate("docker", mappings: docker_mappings) do |mock|
+        run_executable(
+          config_file_path: config_file_path,
+          command_prefix: mock.path_setup
+        )
+      end
 
       expect(result).to include("Output for ruby_0.0")
       expect(result).to include("result for container-ruby00")
