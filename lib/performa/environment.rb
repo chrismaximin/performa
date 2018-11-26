@@ -5,15 +5,21 @@ require "digest"
 module Performa
   class Environment
     def self.all(config)
-      unless config["stages"]
-        return config["images"].map do |image|
-          new(image: image, volumes: config["volumes"])
-        end
-      end
+      config["stages"] ? all_with_stages(config) : all_without_stages(config)
+    end
 
-      config["images"].product(config["stages"].to_a).map do |image, stage|
-        new(image: image, stage: stage, volumes: config["volumes"])
+    def self.all_without_stages(config)
+      config["images"].map do |image|
+        new(image: image, volumes: config["volumes"])
       end
+    end
+
+    def self.all_with_stages(config)
+      config["images"].product(config["stages"].to_a).map do |image, stage|
+        next if config["exclude_environments"]&.include?([image, stage[0]])
+
+        new(image: image, stage: stage, volumes: config["volumes"])
+      end.compact
     end
 
     attr_reader :image, :stage, :volumes, :name, :hash
