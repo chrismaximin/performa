@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "performa/version"
+require "performa/errors"
 require "performa/logger"
 require "performa/configuration"
 require "performa/command_result"
@@ -14,5 +15,4 @@ require "performa/coordinator"
 require "performa/results_helper"
 
 module Performa
-  Error = Class.new(StandardError)
 end

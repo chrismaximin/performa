@@ -2,6 +2,7 @@
 
 require "English"
 require "open3"
+require "shellwords"
 
 module Performa
   module ShellHelper
@@ -40,6 +41,10 @@ module Performa
       exit_status.success? ? LOG.info_success(result_str) : LOG.info_error(result_str)
 
       [exit_status, result_str]
+    end
+
+    def run_container_command(container_id, command, **options)
+      run_command("docker container exec #{container_id} sh -c #{Shellwords.escape(command)}", options)
     end
   end
 end

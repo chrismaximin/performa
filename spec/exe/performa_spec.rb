@@ -13,8 +13,8 @@ RSpec.describe "Performa executable" do
       config = {
         "images" => ["ruby:0.0", "ruby:1.1"],
         "stages" => {
-          "ar0" => ["get install ar -v=0"],
-          "ar1" => ["get install ar -v=1"]
+          "ar0" => ["gem install ar -v=0"],
+          "ar1" => ["gem install ar -v=1"]
         }
       }
       config_file_path = setup_config_file(config)
@@ -31,10 +31,10 @@ RSpec.describe "Performa executable" do
         "run -d performa_env:#{envs_hashes[2]} tail -f /dev/null" => "c11-ar0",
         "run -d performa_env:#{envs_hashes[3]} tail -f /dev/null" => "c11-ar1",
 
-        "container exec c00-ar0 /the_command" => "result for c00-ar0",
-        "container exec c00-ar1 /the_command" => "result for c00-ar1",
-        "container exec c11-ar0 /the_command" => "result for c11-ar0",
-        "container exec c11-ar1 /the_command" => "result for c11-ar1",
+        "container exec c00-ar0 sh -c\ /the_command" => "result for c00-ar0",
+        "container exec c00-ar1 sh -c\ /the_command" => "result for c00-ar1",
+        "container exec c11-ar0 sh -c\ /the_command" => "result for c11-ar0",
+        "container exec c11-ar1 sh -c\ /the_command" => "result for c11-ar1",
 
         "kill c00-ar0" => "",
         "kill c00-ar1" => "",
@@ -68,8 +68,8 @@ RSpec.describe "Performa executable" do
       config = {
         "images" => ["ruby:0.0", "ruby:1.1"],
         "stages" => {
-          "ar0" => ["get install ar -v=0"],
-          "ar1" => ["get install ar -v=1"]
+          "ar0" => ["gem install ar -v=0"],
+          "ar1" => ["gem install ar -v=1"]
         },
         "skip" => {
           "ruby:1.1" => ["ar0"]
@@ -86,15 +86,15 @@ RSpec.describe "Performa executable" do
         "images -q performa_env:#{envs_hashes[0]}" => "",
         "commit container-ruby00 performa_env:#{envs_hashes[0]}" => "",
 
-        "container exec container-ruby00 get install ar -v=0" => "",
-        "container exec container-ruby00 /the_command" => "result for container-ruby00",
+        "container exec container-ruby00 sh -c gem\ install\ ar\ -v\=0" => "",
+        "container exec container-ruby00 sh -c /the_command" => "result for container-ruby00",
         "kill container-ruby00" => "",
 
         "images -q performa_env:#{envs_hashes[1]}" => "",
         "commit container-ruby00-v2 performa_env:#{envs_hashes[1]}" => "",
 
-        "container exec container-ruby00-v2 get install ar -v=1" => "",
-        "container exec container-ruby00-v2 /the_command" => "result for container-ruby00-v2",
+        "container exec container-ruby00-v2 sh -c gem\ install\ ar\ -v\=1" => "",
+        "container exec container-ruby00-v2 sh -c /the_command" => "result for container-ruby00-v2",
         "kill container-ruby00-v2" => "",
 
         "images -q ruby:1.1" => "",
@@ -104,8 +104,8 @@ RSpec.describe "Performa executable" do
         "images -q performa_env:#{envs_hashes[3]}" => "",
         "commit container-ruby11-v2 performa_env:#{envs_hashes[3]}" => "",
 
-        "container exec container-ruby11-v2 get install ar -v=1" => "",
-        "container exec container-ruby11-v2 /the_command" => "result for container-ruby11-v2",
+        "container exec container-ruby11-v2 sh -c gem\ install\ ar\ -v\=1" => "",
+        "container exec container-ruby11-v2 sh -c /the_command" => "result for container-ruby11-v2",
         "kill container-ruby11-v2" => ""
       }
 
@@ -134,7 +134,7 @@ RSpec.describe "Performa executable" do
         "images -q ruby:0.0" => "",
         "pull ruby:0.0" => "",
         "run -d ruby:0.0 tail -f /dev/null" => "container-ruby00",
-        "container exec container-ruby00 /the_command" => "result for container-ruby00",
+        "container exec container-ruby00 sh -c /the_command" => "result for container-ruby00",
         "kill container-ruby00" => ""
       }
 

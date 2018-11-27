@@ -6,12 +6,15 @@ module Performa
 
     extend ShellHelper
 
-    def process(env, container_id:)
+    def process(env, container_id:, config:)
       return unless env.stage
 
       env.stage[1].each do |command|
-        run_command("docker container exec #{container_id} #{command}", success_only: false)
+        result = run_container_command(container_id, command, success_only: false)
+        raise(CommandFailureError, result) if result.failure?
       end
+
+      Images.cache_container(container_id, tag: env.hash) if config.cachable_envs?
     end
   end
 end

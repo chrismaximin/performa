@@ -22,14 +22,12 @@ module Performa
     def process_env(env, config:)
       LOG.info_notice("Processing #{[env.image, env&.stage&.first].compact}")
       container_id = Images.process(env, config: config)
-      unless container_id.from_cache
-        Stages.process(env, container_id: container_id)
-        Images.cache_container(container_id, tag: env.hash) if config.cachable_envs?
-      end
-
-      result = run_command("docker container exec #{container_id} #{config['command']}", success_only: false)
+      Stages.process(env, container_id: container_id, config: config) unless container_id.from_cache
+      run_container_command(container_id, config["command"], success_only: false)
+    rescue CommandFailureError => error
+      error.message
+    ensure
       ContainerRegistry.kill(container_id)
-      result
     end
   end
 end
