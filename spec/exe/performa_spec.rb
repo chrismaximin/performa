@@ -63,7 +63,7 @@ RSpec.describe "Performa executable" do
     end
   end
 
-  context "with stages (nothing cached + one exclude_environments)" do
+  context "with stages (nothing cached + one env skipped)" do
     it "runs command on the product of images * stages - excluded" do
       config = {
         "images" => ["ruby:0.0", "ruby:1.1"],
@@ -71,9 +71,9 @@ RSpec.describe "Performa executable" do
           "ar0" => ["get install ar -v=0"],
           "ar1" => ["get install ar -v=1"]
         },
-        "exclude_environments" => [
-          ["ruby:1.1", "ar0"]
-        ]
+        "skip" => {
+          "ruby:1.1" => ["ar0"]
+        }
       }
       config_file_path = setup_config_file(config)
       envs_hashes = generate_envs_hashes(config)

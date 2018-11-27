@@ -15,8 +15,10 @@ module Performa
     end
 
     def self.all_with_stages(config)
+      skipped = config["skip"]&.flat_map { |image, stages| [image].product(stages) }
+
       config["images"].product(config["stages"].to_a).map do |image, stage|
-        next if config["exclude_environments"]&.include?([image, stage[0]])
+        next if skipped&.include?([image, stage[0]])
 
         new(image: image, stage: stage, volumes: config["volumes"])
       end.compact
