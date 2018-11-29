@@ -3,12 +3,59 @@
 require "tmpdir"
 require "tempfile"
 require "support/executable_mock"
-require "digest"
+require "digest/sha1"
 
 RSpec.describe "Performa executable" do
   EXECUTABLE = File.join(Gem::Specification.find_by_name("performa").gem_dir, "exe", "performa")
 
-  context "with stages (cached)" do
+  context "with stages (partially cached)" do
+    it "runs the remaining commands on the product of images * stages" do
+      config = {
+        "images" => ["ruby:0.0"],
+        "stages" => {
+          "ar0" => [
+            "gem install ar -v=0", # cached
+            "touch /tmp/123", # cached
+            "touch /tmp/456",
+            "touch /tmp/789"
+          ]
+        }
+      }
+
+      config_file_path = setup_config_file(config)
+      envs_hashes = calculate_envs_hashes(config)
+
+      docker_mappings = {
+        "images -q performa_env:#{envs_hashes[0]}" => "",
+        "images -q performa_env:#{envs_hashes[1]}" => "",
+        "images -q performa_env:#{envs_hashes[2]}" => "some-image",
+
+        "run -d performa_env:#{envs_hashes[2]} tail -f /dev/null" => "c00-ar0",
+
+        "container exec c00-ar0 sh -c\ touch\ /tmp/456" => "result for c00-ar0",
+        "commit c00-ar0 performa_env:#{envs_hashes[1]}" => "",
+
+        "container exec c00-ar0 sh -c\ touch\ /tmp/789" => "result for c00-ar0",
+        "commit c00-ar0 performa_env:#{envs_hashes[0]}" => "",
+
+        "container exec c00-ar0 sh -c\ /the_command" => "result for c00-ar0",
+
+        "kill c00-ar0" => ""
+      }
+
+      result = ExecutableMock.generate("docker", mappings: docker_mappings) do |mock|
+        run_executable(
+          config_file_path: config_file_path,
+          command_prefix: mock.path_setup
+        )
+      end
+
+      expect(result).to include("Output for ruby_0.0-ar0")
+      expect(result).to include("result for c00-ar0")
+    end
+  end
+
+  context "with stages (fully cached)" do
     it "runs command on the product of images * stages" do
       config = {
         "images" => ["ruby:0.0", "ruby:1.1"],
@@ -17,8 +64,9 @@ RSpec.describe "Performa executable" do
           "ar1" => ["gem install ar -v=1"]
         }
       }
+
       config_file_path = setup_config_file(config)
-      envs_hashes = generate_envs_hashes(config)
+      envs_hashes = calculate_envs_hashes(config)
 
       docker_mappings = {
         "images -q performa_env:#{envs_hashes[0]}" => "some-image",
@@ -64,7 +112,7 @@ RSpec.describe "Performa executable" do
   end
 
   context "with stages (nothing cached + one env skipped)" do
-    it "runs command on the product of images * stages - excluded" do
+    it "runs staging commands + final command on the product of images * stages - excluded" do
       config = {
         "images" => ["ruby:0.0", "ruby:1.1"],
         "stages" => {
@@ -75,8 +123,9 @@ RSpec.describe "Performa executable" do
           "ruby:1.1" => ["ar0"]
         }
       }
+
       config_file_path = setup_config_file(config)
-      envs_hashes = generate_envs_hashes(config)
+      envs_hashes = calculate_envs_hashes(config)
 
       docker_mappings = {
         "images -q ruby:0.0" => "",
@@ -167,8 +216,11 @@ def setup_config_file(config_hash)
   end
 end
 
-def generate_envs_hashes(config)
-  config["images"].product(config["stages"].to_a).map do |product|
-    Digest::SHA1.hexdigest(product.map(&:to_s).join)
+def calculate_envs_hashes(config)
+  config["images"].product(config["stages"].to_a).flat_map do |image, (_stage_name, commands)|
+    hash = Digest::SHA1.hexdigest(image)
+    commands.map do |command|
+      hash = Digest::SHA1.hexdigest(hash + command)
+    end.reverse
   end
 end

@@ -5,7 +5,7 @@ require "digest"
 module Performa
   class Environment
     def self.all(config)
-      config["stages"] ? all_with_stages(config) : all_without_stages(config)
+      config["stages"] ? all_with_active_stages(config) : all_without_stages(config)
     end
 
     def self.all_without_stages(config)
@@ -14,12 +14,13 @@ module Performa
       end
     end
 
-    def self.all_with_stages(config)
-      skipped = config["skip"]&.flat_map { |image, stages| [image].product(stages) }
+    def self.all_with_active_stages(config)
+      skipped = config["skip"]&.flat_map { |image, stages_names| [image].product(stages_names) }
 
-      config["images"].product(config["stages"].to_a).map do |image, stage|
-        next if skipped&.include?([image, stage[0]])
+      config["images"].product(config["stages"].to_a).map do |image, config_stage|
+        next if skipped&.include?([image, config_stage[0]])
 
+        stage = Stage.from_config(config_stage, image: image)
         new(image: image, stage: stage, volumes: config["volumes"])
       end.compact
     end
@@ -31,15 +32,10 @@ module Performa
       @stage = stage
       @volumes = volumes || []
       assign_name
-      assign_hash
     end
 
     def assign_name
-      @name = @image.tr(":", "_") + ("-#{@stage[0]}" if @stage).to_s
-    end
-
-    def assign_hash
-      @hash = Digest::SHA1.hexdigest(@image + @stage.to_s)
+      @name = @image.tr(":", "_") + ("-#{@stage.name}" if @stage).to_s
     end
   end
 end

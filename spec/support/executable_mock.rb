@@ -48,6 +48,7 @@ class ExecutableMock
         unless mappings.key?(argv_key)
           File.open("#{@call_error_log_file_path}", "w") do |file|
             file.write("The executable `#{@name}` does not support these args:\n\#{argv_key}")
+            file.write("\n\nSupported:\n\#{#{@mappings}.keys.join("\n")}")
           end
           puts "ExecutableMock: Unsupported arguments"
           exit 1

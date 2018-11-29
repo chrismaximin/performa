@@ -20,14 +20,13 @@ module Performa
     end
 
     def process_env(env, config:)
-      LOG.info_notice("Processing #{[env.image, env&.stage&.first].compact}")
+      LOG.info_notice("Processing #{env.name}")
       container_id = Images.process(env, config: config)
-      Stages.process(env, container_id: container_id, config: config) unless container_id.from_cache
       run_container_command(container_id, config["command"], success_only: false)
     rescue CommandFailureError => error
       error.message
     ensure
-      ContainerRegistry.kill(container_id)
+      ContainerRegistry.kill(container_id) if container_id
     end
   end
 end
