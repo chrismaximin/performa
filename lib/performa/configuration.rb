@@ -5,8 +5,7 @@ require "yaml"
 module Performa
   class Configuration
     DEFAULT_FILES = %w[
-      performa.yml config/performa.yml
-      spec/performa.yml test/performa.yml
+      .performa.yml performa.yml config/performa.yml
     ].freeze
 
     ERR_READING_CONFIG_FILE = "Could not read config file %s (%s)"
@@ -52,6 +51,13 @@ module Performa
 
     def cachable_envs?
       !(@data["cache_environments"] == false || @data["stages"].nil?)
+    end
+
+    def self.generate_file(file)
+      raise Errno::EEXIST if File.exist?(file)
+
+      template_file = File.join(__dir__, "configuration-template.yml")
+      FileUtils.cp(template_file, file, verbose: true)
     end
   end
 end

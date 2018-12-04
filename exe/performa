@@ -12,7 +12,7 @@ options = Struct.new(:config_file).new
 
 OptionParser.new do |opts|
   opts.banner = [
-    "Usage: performa [-c config-file.yml]",
+    "Usage: performa [-c performa-config-file.yml]",
     "Default config files considered: #{Performa::Configuration::DEFAULT_FILES.join(', ')}\n\n"
   ].join("\n")
 
@@ -22,6 +22,18 @@ OptionParser.new do |opts|
 
   opts.on("--clear-cached", "Remove all Performa generated docker images (#{Performa::Images::CACHED_IMAGES_NAME}:*)") do
     Performa::Images.clear_cached
+    exit 0
+  end
+
+  opts.on("-i", "--init [.performa.yml]", "Generate a new config file") do |file|
+    file ||= ".performa.yml"
+    begin
+      Performa::Configuration.generate_file(file)
+    rescue Errno::EEXIST
+      puts "Error: `#{file}` already exists. Please delete it first."
+      exit 1
+    end
+
     exit 0
   end
 
