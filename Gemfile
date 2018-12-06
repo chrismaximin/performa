@@ -9,6 +9,7 @@ gemspec
 
 gem "bundler"
 gem "byebug"
+gem "executable_mock"
 gem "rake"
 gem "rspec"
 gem "rubocop", github: "rubocop-hq/rubocop"
