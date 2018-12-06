@@ -2,7 +2,7 @@
 
 require "tmpdir"
 require "tempfile"
-require "support/executable_mock"
+require "executable_mock"
 require "digest/sha1"
 
 RSpec.describe "Performa executable" do
@@ -43,7 +43,7 @@ RSpec.describe "Performa executable" do
         "kill c00-ar0" => ""
       }
 
-      result = ExecutableMock.generate("docker", mappings: docker_mappings) do |mock|
+      result = ExecutableMock.generate("docker", docker_mappings) do |mock|
         run_executable(
           config_file_path: config_file_path,
           command_prefix: mock.path_setup
@@ -90,7 +90,7 @@ RSpec.describe "Performa executable" do
         "kill c11-ar1" => ""
       }
 
-      result = ExecutableMock.generate("docker", mappings: docker_mappings) do |mock|
+      result = ExecutableMock.generate("docker", docker_mappings) do |mock|
         run_executable(
           config_file_path: config_file_path,
           command_prefix: mock.path_setup
@@ -158,7 +158,7 @@ RSpec.describe "Performa executable" do
         "kill container-ruby11-v2" => ""
       }
 
-      result = ExecutableMock.generate("docker", mappings: docker_mappings) do |mock|
+      result = ExecutableMock.generate("docker", docker_mappings) do |mock|
         run_executable(
           config_file_path: config_file_path,
           command_prefix: mock.path_setup
@@ -187,7 +187,7 @@ RSpec.describe "Performa executable" do
         "kill container-ruby00" => ""
       }
 
-      result = ExecutableMock.generate("docker", mappings: docker_mappings) do |mock|
+      result = ExecutableMock.generate("docker", docker_mappings) do |mock|
         run_executable(
           config_file_path: config_file_path,
           command_prefix: mock.path_setup

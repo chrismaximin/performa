@@ -5,8 +5,8 @@ version: 1
 
 ## [Required] Base docker images to run command on
 images:
-  # - ruby:2.4
-  # - ruby:2.5
+  - ruby:2.4
+  - ruby:2.5
 
 ## [Optional] Commands setting up each image before running command.
 ## Environments generated = images * stages
@@ -28,3 +28,10 @@ images:
 ## [Required] Command to run on all environments
 command: |
   ruby -e "puts RUBY_VERSION"
+
+# [Optional] Where to output the command result
+# Default value: STDOUT
+# If you set it a directory, existing or not, that directory may be created,
+# and the results will be put in individual files for each environment.
+# output: STDOUT
+# output: ./performa-results
