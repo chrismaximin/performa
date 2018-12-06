@@ -14,7 +14,7 @@ GIT
 PATH
   remote: .
   specs:
-    performa (0.2.0)
+    performa (0.3.0)
       colorize (~> 0.8)
 
 GEM
